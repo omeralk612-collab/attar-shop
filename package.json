@@ -1,0 +1,9 @@
+{
+  "name": "attar-shop",
+  "version": "1.0.0",
+  "description": "متجر إلكتروني لبيع العطور - مشروع تعليمي",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
