@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "متجر إلكتروني لبيع العطور - مشروع تعليمي",
   "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node server.js"
   }

@@ -5,30 +5,56 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const { DatabaseSync } = require('node:sqlite'); // قاعدة بيانات SQLite مدمجة في Node، بدون أي تثبيت خارجي
 
-// المنفذ: المنصة (مثل Render) تحدده هي، ونحن نقرأه من البيئة
+// المنفذ: المنصة (مثل Railway) تحدده هي، ونحن نقرأه من البيئة
 const PORT = process.env.PORT || 3000;
 
 // رمز المشرف لعرض الطلبات - لا تكتبه هنا، ضعه في Environment Variables
 const ADMIN_CODE = (process.env.ADMIN_CODE || 'admin123').trim();
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
+// مهم: هذا المجلد يجب ربطه بـ Volume دائم في Railway (Mount Path: /app/data)
+// وإلا فستُمسح البيانات مع كل عملية نشر جديدة
 const DATA_DIR = path.join(__dirname, 'data');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
+const DB_FILE = path.join(DATA_DIR, 'shop.db');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, '[]');
+
+const db = new DatabaseSync(DB_FILE);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS orders (
+    id TEXT PRIMARY KEY,
+    date TEXT NOT NULL,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    city TEXT NOT NULL,
+    address TEXT NOT NULL,
+    items TEXT NOT NULL,
+    total INTEGER NOT NULL,
+    status TEXT NOT NULL
+  )
+`);
 
 function readOrders() {
-  try {
-    return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
+  const rows = db.prepare('SELECT * FROM orders ORDER BY date DESC').all();
+  return rows.map(row => ({
+    ...row,
+    items: JSON.parse(row.items)
+  }));
 }
 
-function writeOrders(orders) {
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+function insertOrder(order) {
+  const stmt = db.prepare(`
+    INSERT INTO orders (id, date, name, phone, city, address, items, total, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  stmt.run(
+    order.id, order.date, order.name, order.phone,
+    order.city, order.address, JSON.stringify(order.items),
+    order.total, order.status
+  );
 }
 
 // كتالوج المنتجات - بيانات ثابتة، ليست سرًا
@@ -151,9 +177,7 @@ const server = http.createServer(async (req, res) => {
       status: 'قيد المراجعة'
     };
 
-    const orders = readOrders();
-    orders.push(order);
-    writeOrders(orders);
+    insertOrder(order);
 
     return sendJSON(res, 200, { ok: true, orderId: order.id, total });
   }
