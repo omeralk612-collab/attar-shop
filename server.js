@@ -10,7 +10,7 @@ const url = require('url');
 const PORT = process.env.PORT || 3000;
 
 // رمز المشرف لعرض الطلبات - لا تكتبه هنا، ضعه في Environment Variables
-const ADMIN_CODE = process.env.ADMIN_CODE || 'admin123';
+const ADMIN_CODE = (process.env.ADMIN_CODE || 'admin123').trim();
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_DIR = path.join(__dirname, 'data');
