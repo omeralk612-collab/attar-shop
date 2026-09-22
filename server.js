@@ -160,7 +160,7 @@ const server = http.createServer(async (req, res) => {
 
   // عرض الطلبات - للمشرف فقط، يحتاج الرمز الصحيح
   if (pathname === '/api/admin/orders' && req.method === 'GET') {
-    const code = parsed.query.code || req.headers['x-admin-code'];
+    const code = (parsed.query.code || req.headers['x-admin-code'] || '').trim();
     if (code !== ADMIN_CODE) {
       return sendJSON(res, 401, { error: 'رمز الدخول غير صحيح' });
     }
