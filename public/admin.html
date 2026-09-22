@@ -1,1 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم — دار العطر</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --oud:#16233B; --oud-deep:#0E1725; --gold:#2F6FA3; --gold-soft:#6CA3D1;
+    --cream:#EDF1F6; --garnet:#7A2036; --line:rgba(237,241,246,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--oud); color:var(--cream); font-family:'Cairo', sans-serif; line-height:1.7;}
+  h1,h2,h3{font-family:'Amiri', serif; font-weight:700;}
+  header{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6%; background:rgba(14,23,37,0.95);
+    border-bottom:1px solid var(--line); backdrop-filter:blur(6px);
+  }
+  .brand{font-family:'Amiri', serif; font-size:1.4rem; color:var(--gold-soft);}
+  .brand span{color:var(--cream); font-size:0.85rem; display:block; font-family:'Cairo'; opacity:0.7;}
+  header a{color:var(--gold-soft); font-size:0.9rem;}
+  .wrap{max-width:1100px; margin:0 auto; padding:6vh 6%;}
+  .panel{
+    background:var(--oud-deep); border:1px solid var(--line);
+    padding:32px 28px; border-radius:2px;
+  }
+  .panel h2{font-size:1.7rem; color:var(--cream); margin-bottom:6px;}
+  .panel .hint{color:rgba(237,241,246,0.55); font-size:0.9rem; margin-bottom:22px;}
+  label{display:block; font-size:0.85rem; color:rgba(237,241,246,0.7); margin:14px 0 6px;}
+  input, textarea, select{
+    width:100%; background:var(--oud); border:1px solid var(--line); color:var(--cream);
+    padding:11px 12px; border-radius:2px; font-family:'Cairo'; font-size:0.95rem;
+  }
+  input:focus, textarea:focus{outline:2px solid var(--gold); outline-offset:1px;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media(max-width:640px){ .row{grid-template-columns:1fr;} }
+  button{
+    background:var(--gold); color:var(--oud-deep);
+    border:none; padding:12px 22px; border-radius:2px;
+    font-family:'Cairo'; font-weight:700; cursor:pointer; font-size:0.95rem;
+    transition:background 0.2s;
+  }
+  button:hover{background:var(--gold-soft);}
+  button.ghost{background:none; border:1px solid var(--line); color:var(--cream);}
+  button.danger{background:none; border:1px solid var(--garnet); color:#E7A9B6;}
+  button.danger:hover{background:var(--garnet); color:var(--cream);}
+  #msg{margin-top:14px; font-size:0.9rem; min-height:1.2em;}
+  #msg.ok{color:#8FBF8F;}
+  #msg.err{color:#D98080;}
 
+  .preview{
+    margin-top:14px; width:180px; aspect-ratio:4/5; overflow:hidden;
+    border:1px dashed var(--line); border-radius:2px;
+    background:linear-gradient(160deg, #1c3350, #0b1420);
+    display:flex; align-items:center; justify-content:center;
+    color:rgba(108,163,209,0.45); font-family:'Amiri', serif; font-size:0.9rem;
+  }
+  .preview img{width:100%; height:100%; object-fit:cover;}
+
+  .list-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin:48px 0 18px; padding-bottom:14px; border-bottom:1px solid var(--line);
+  }
+  .list-head h2{font-size:1.5rem;}
+  .prod-list{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:2px; background:var(--line); border:1px solid var(--line);}
+  .prod-item{background:var(--oud-deep); display:flex; flex-direction:column;}
+  .prod-item .thumb{
+    aspect-ratio:4/5; overflow:hidden;
+    background:linear-gradient(160deg, #1c3350, #0b1420);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .prod-item .thumb img{width:100%; height:100%; object-fit:cover;}
+  .prod-item .thumb span{color:rgba(108,163,209,0.45); font-family:'Amiri', serif;}
+  .prod-item .info{padding:16px 18px; display:flex; flex-direction:column; gap:8px; flex-grow:1;}
+  .prod-item .info h3{font-size:1.15rem;}
+  .prod-item .info .meta{font-size:0.82rem; color:rgba(237,241,246,0.55);}
+  .prod-item .info .price{color:var(--gold-soft); font-family:'Amiri', serif; font-size:1.1rem;}
+  .prod-item .actions{display:flex; justify-content:flex-end; padding:0 18px 18px;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">دار العطر<span>لوحة التحكم</span></div>
+  <a href="/">← المتجر</a>
+</header>
+
+<div class="wrap">
+
+  <!-- الدخول -->
+  <section class="panel" id="login-panel">
+    <h2>دخول المشرف</h2>
+    <p class="hint">أدخل رمز المشرف (ADMIN_CODE) للوصول إلى إدارة المنتجات.</p>
+    <form id="login-form">
+      <label for="code">رمز المشرف</label>
+      <input id="code" type="password" required autocomplete="current-password">
+      <div style="margin-top:18px;"><button type="submit">دخول</button></div>
+      <p id="login-msg" class="err" style="margin-top:14px;"></p>
+    </form>
+  </section>
+
+  <!-- اللوحة -->
+  <section id="admin-area" hidden>
+
+    <div class="panel">
+      <h2>إضافة منتج جديد</h2>
+      <p class="hint">ارفع صورة (PNG/JPG/WEBP، حتى 3 ميجا) واملأ البيانات.</p>
+
+      <form id="product-form">
+        <div class="row">
+          <div>
+            <label for="f-name">اسم العطر</label>
+            <input id="f-name" required maxlength="80">
+          </div>
+          <div>
+            <label for="f-family">العائلة العطرية</label>
+            <input id="f-family" required maxlength="40" placeholder="مثال: عودي، زهري…">
+          </div>
+        </div>
+
+        <label for="f-notes">المكوّنات / النوتات</label>
+        <input id="f-notes" required maxlength="150" placeholder="مثال: عود كمبودي، صندل، مسك">
+
+        <div class="row">
+          <div>
+            <label for="f-size">الحجم</label>
+            <input id="f-size" required maxlength="30" value="50 مل">
+          </div>
+          <div>
+            <label for="f-price">السعر (ر.س)</label>
+            <input id="f-price" type="number" min="1" step="1" required>
+          </div>
+        </div>
+
+        <label for="f-desc">الوصف</label>
+        <textarea id="f-desc" rows="3" required maxlength="500"></textarea>
+
+        <label for="f-image">صورة المنتج</label>
+        <input id="f-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <div class="preview" id="preview">لا صورة</div>
+
+        <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="submit">حفظ المنتج</button>
+          <button type="button" class="ghost" id="reset-btn">تفريغ النموذج</button>
+        </div>
+        <p id="msg"></p>
+      </form>
+    </div>
+
+    <div class="list-head">
+      <h2>المنتجات الحالية</h2>
+      <button class="ghost" id="logout-btn">خروج</button>
+    </div>
+    <div class="prod-list" id="prod-list"></div>
+
+  </section>
+</div>
+
+<script>
+const loginPanel  = document.getElementById('login-panel');
+const loginForm   = document.getElementById('login-form');
+const loginMsg    = document.getElementById('login-msg');
+const codeInput   = document.getElementById('code');
+const adminArea   = document.getElementById('admin-area');
+const productForm = document.getElementById('product-form');
+const msg         = document.getElementById('msg');
+const list        = document.getElementById('prod-list');
+const preview     = document.getElementById('preview');
+const imageInput  = document.getElementById('f-image');
+
+let adminCode = sessionStorage.getItem('attarAdminCode') || '';
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showAdmin(){
+  loginPanel.hidden = true;
+  adminArea.hidden = false;
+  loadProducts();
+}
+
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const code = codeInput.value.trim();
+  if (!code) return;
+  loginMsg.textContent = 'جارٍ التحقق…';
+  try {
+    const res = await fetch('/api/admin/orders?code=' + encodeURIComponent(code));
+    if (!res.ok) throw new Error('رمز الدخول غير صحيح');
+    adminCode = code;
+    sessionStorage.setItem('attarAdminCode', code);
+    loginMsg.textContent = '';
+    showAdmin();
+  } catch (err) {
+    loginMsg.textContent = err.message;
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  sessionStorage.removeItem('attarAdminCode');
+  adminCode = '';
+  adminArea.hidden = true;
+  loginPanel.hidden = false;
+  codeInput.value = '';
+});
+
+// معاينة الصورة
+imageInput.addEventListener('change', () => {
+  const file = imageInput.files[0];
+  if (!file) { preview.textContent = 'لا صورة'; return; }
+  const reader = new FileReader();
+  reader.onload = () => { preview.innerHTML = `<img src="${reader.result}" alt="">`; };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  productForm.reset();
+  preview.textContent = 'لا صورة';
+  msg.textContent = ''; msg.className = '';
+});
+
+function fileToDataURL(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+productForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  msg.textContent = 'جارٍ الحفظ…'; msg.className = '';
+
+  try {
+    const file = imageInput.files[0];
+    let image = null;
+    if (file) {
+      if (file.size > 3 * 1024 * 1024) throw new Error('حجم الصورة يتجاوز 3 ميجابايت');
+      image = await fileToDataURL(file);
+    }
+
+    const body = {
+      name:        document.getElementById('f-name').value.trim(),
+      family:      document.getElementById('f-family').value.trim(),
+      notes:       document.getElementById('f-notes').value.trim(),
+      size:        document.getElementById('f-size').value.trim(),
+      price:       parseInt(document.getElementById('f-price').value, 10),
+      description: document.getElementById('f-desc').value.trim(),
+      image
+    };
+
+    const res = await fetch('/api/admin/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-code': adminCode },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'فشل الحفظ');
+
+    msg.textContent = 'تمت إضافة المنتج بنجاح.';
+    msg.className = 'ok';
+    productForm.reset();
+    preview.textContent = 'لا صورة';
+    loadProducts();
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = 'err';
+  }
+});
+
+async function loadProducts(){
+  list.innerHTML = '<p style="padding:16px; color:rgba(237,241,246,0.5);">جارٍ التحميل…</p>';
+  try {
+    const res = await fetch('/api/products');
+    const products = await res.json();
+    if (!products.length) {
+      list.innerHTML = '<p style="padding:16px; color:rgba(237,241,246,0.5);">لا توجد منتجات بعد.</p>';
+      return;
+    }
+    list.innerHTML = products.map(p => `
+      <div class="prod-item">
+        <div class="thumb">
+          ${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">` : `<span>${esc(p.family)}</span>`}
+        </div>
+        <div class="info">
+          <h3>${esc(p.name)}</h3>
+          <div class="meta">${esc(p.family)} · ${esc(p.size)}</div>
+          <div class="meta">${esc(p.notes)}</div>
+          <div class="price">${p.price} ر.س</div>
+        </div>
+        <div class="actions">
+          <button class="danger" data-del="${esc(p.id)}">حذف</button>
+        </div>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<p style="padding:16px;color:#D98080;">تعذّر تحميل المنتجات.</p>';
+  }
+}
+
+list.addEventListener('click', async e => {
+  const btn = e.target.closest('button[data-del]');
+  if (!btn) return;
+  const id = btn.dataset.del;
+  if (!confirm('حذف هذا المنتج نهائيًا؟')) return;
+  const res = await fetch('/api/admin/products/' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: { 'x-admin-code': adminCode }
+  });
+  if (res.ok) loadProducts();
+  else alert('تعذّر الحذف');
+});
+
+if (adminCode) showAdmin();
+</script>
+</body>
+</html>
